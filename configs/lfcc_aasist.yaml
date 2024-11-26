@@ -1,0 +1,7 @@
+model:
+  name: "frontend_aasist"
+  checkpoint_path: ""
+  parameters:
+    frontend_algorithm: "lfcc"
+    fc1_dim: 1024
+    input_channels: 1

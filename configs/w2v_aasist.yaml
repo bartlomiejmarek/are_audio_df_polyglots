@@ -1,0 +1,5 @@
+model:
+  name: "w2v_aasist"
+  checkpoint_path: ""
+  parameters:
+    freeze_feature_extractor: false
