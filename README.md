@@ -1,4 +1,4 @@
-# Multilingual Audio Deepfake Detection
+# Are audio DeepFake detection models polyglots?
 
 ## Overview
 This repository contains the official implementation of the paper **"Are audio DeepFake detection models polyglots?"**, authored by Bartłomiej Marek, Piotr Kawa, and Piotr Syga.
@@ -31,7 +31,6 @@ Available languages include:
 ├── train.py                # Main training script
 ├── finetune.py             # Main fine-tuning script
 ├── requirements.txt        # Required dependencies
-└── README.md               # Project documentation
 ```
 ---
 
