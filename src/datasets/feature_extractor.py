@@ -99,13 +99,11 @@ def prepare_mfcc_double_delta(audio: torch.Tensor, **kwargs) -> torch.Tensor:
 
 def prepare_lfcc(audio: torch.Tensor, **kwargs) -> torch.Tensor:
     """Prepare LFCC features for the given audio."""
-    # TODO: Implement LFCC feature extraction
     return prepare_double_delta(audio, feature_type="lfcc", **kwargs)
 
 
 def prepare_mfcc(audio: torch.Tensor, **kwargs) -> torch.Tensor:
     """Prepare MFCC features for the given audio."""
-    # TODO: Implement LFCC feature extraction
     return prepare_double_delta(audio, feature_type="mfcc", **kwargs)
 
 

@@ -48,18 +48,6 @@ def resample_wave(
     return torchaudio.sox_effects.apply_effects_tensor(waveform, sample_rate, effects)  # returns waveform, sample_rate
 
 
-def resample_file(
-        path: str,
-        target_sample_rate: int,
-        normalize: bool = True
-) -> Tuple[torch.Tensor, int]:
-    """
-    Resample an audio file to the target sample rate.
-    """
-    effects = [["rate", str(target_sample_rate)]]
-    return torchaudio.sox_effects.apply_effects_file(path, effects, normalize=normalize)
-
-
 def apply_sox_effects(
         waveform: torch.Tensor,
         sample_rate: int,
