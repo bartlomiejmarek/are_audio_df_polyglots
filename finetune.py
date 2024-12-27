@@ -63,8 +63,6 @@ def main():
     if args.rawboost_algo is not None:
         ft_config.rawboost_config = _RawboostConfig(algo_id=args.rawboost_algo)
 
-    args.config = "configs/lfcc_aasist.yaml"
-    args.ft_languages = ['en']
     with open(args.config, mode="r") as f:
         model_config = safe_load(f)
 
