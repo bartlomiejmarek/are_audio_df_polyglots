@@ -8,3 +8,5 @@ pyyaml
 alive_progress
 numpy==1.25.0
 pydantic==2.8.2
+transformers
+python-dotenv
