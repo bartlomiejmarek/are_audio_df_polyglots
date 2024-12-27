@@ -15,7 +15,9 @@ from df_logger import main_logger
 from parser import parse_arguments
 from src.datasets.asvspoof2019_dataset import ASVspoof2019Dataset
 from src.train_models import train_nn
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 def main():
     # set up the configuration
@@ -36,10 +38,8 @@ def main():
             },
             criterion=BCEWithLogitsLoss,
         ),
-        # root_dir='/Volumes/SSD_Bartek/Datasets/LA',
-        # root_path_to_protocol=Path("/Volumes/SSD_Bartek/Datasets/LA/ASVspoof2019_LA_cm_protocols"),
-        root_dir=Path("/ephemeral/piotr/dfd_datasets/LA"),
-        root_path_to_protocol=Path("/ephemeral/piotr/dfd_datasets/LA/ASVspoof2019_LA_cm_protocols"),
+        root_dir=Path(os.getenv("PATH_TO_ASV")), 
+        root_path_to_protocol=Path(os.getenv("PATH_TO_ASV_PROTOCOL")), 
         rawboost_config=_RawboostConfig(algo_id=0),
     )
 

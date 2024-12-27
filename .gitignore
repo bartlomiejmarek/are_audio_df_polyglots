@@ -169,3 +169,6 @@ data
 model_configs
 all_models
 logs
+
+./models/*
+multirun*.py

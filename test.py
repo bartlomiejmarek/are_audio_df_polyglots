@@ -15,7 +15,9 @@ from parser import parse_arguments
 from src.datasets.mlaad_dataset import MLAADDataset
 from src.evaluate import evaluate_nn
 from utils.utils import append_to_csv
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 def main():
 
@@ -35,9 +37,8 @@ def main():
             criterion=BCEWithLogitsLoss,
         ),
         rawboost_config=_RawboostConfig(algo_id=0),
-        root_path_to_protocol=Path("/ephemeral/piotr/dfd_datasets/multi-lang-dataset"),
+        root_path_to_protocol=Path(os.getenv('PATH_TO_MLAAD')),
         evaluate_output_file="results/evaluation_results.csv",
-        path_to_test_samples="data/mlaad/testing_recordings.csv"
     )
 
     args = parse_arguments()

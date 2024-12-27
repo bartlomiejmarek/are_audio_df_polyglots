@@ -14,6 +14,10 @@ from df_logger import main_logger
 from parser import parse_arguments
 from src.datasets.mlaad_dataset import MLAADDataset
 from src.train_models import train_nn
+import os 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def main():
@@ -27,17 +31,12 @@ def main():
             early_stopping=False,
             early_stopping_patience=5,
             optimizer_parameters={
-                # "lr": 1e-4,
-                # "weight_decay": 0.000005
                 "lr": 1e-6,
                 "weight_decay": 1e-7
             },
             criterion=BCEWithLogitsLoss,
         ),
-        # root_dir=Path("/media/bartek/ELITE SE880/Datasets/LA"),
-        # root_path_to_protocol=Path("/media/bartek/ELITE SE880/Datasets/mlaad-dataset/MLAAD")
-        root_dir=Path("/ephemeral/piotr/dfd_datasets/LA"),
-        root_path_to_protocol=Path("/ephemeral/piotr/dfd_datasets/multi-lang-dataset"),
+        root_path_to_protocol=Path(os.getenv('PATH_TO_MLAAD')),
         rawboost_config=_RawboostConfig(algo_id=0),
     )
 
@@ -64,6 +63,8 @@ def main():
     if args.rawboost_algo is not None:
         ft_config.rawboost_config = _RawboostConfig(algo_id=args.rawboost_algo)
 
+    args.config = "configs/lfcc_aasist.yaml"
+    args.ft_languages = ['en']
     with open(args.config, mode="r") as f:
         model_config = safe_load(f)
 
