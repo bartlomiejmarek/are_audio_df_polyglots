@@ -174,3 +174,4 @@ logs
 multirun*.py
 slurm_scripts/
 models
+logs

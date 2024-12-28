@@ -26,6 +26,43 @@ Available languages include:
 ```
 
 ---
+## Datasets
+---
+For the experiments we use: ASVspoof2019LA and MLAAD. 
+
+MLAAD dataset has the following structure
+```
+MLAAD/
+README.md (36-42)
+├── bonafide
+│   ├── de_DE
+│   │   └── by_book
+│   │       ├── female
+│   │       │   └── angela_merkel
+│   │       │   │    └── merkel_alone
+│   │       |   │        └── wavs
+│   │       |   ├── eva_k
+│   │       │   │    ├── grune_haus
+│   │       |   │    |    └── wavs
+...
+|   ├── en_UK
+│   │   └── by_book
+│   │       └── female
+│   │           └── elizabeth_klett
+│   │               ├── jane_eyre
+│   │               │   └── wavs
+│   │               └── wives_and_daughters
+│   │                   └── wavs
+....
+
+├── fake
+│   ├── ar
+│   │   └── tts_models_multilingual_multi-dataset_xtts_v1.1
+│   ├── bg
+│   │   └── tts_models_bg_cv_vits
+│   ├── cs
+│   │   └── tts_models_cs_cv_vits
+```
 
 ### Repository Structure
 

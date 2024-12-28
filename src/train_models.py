@@ -68,7 +68,7 @@ def train_nn(
     config_name = "configuration.yaml"
     with open(join(dirname(checkpoint_path), config_name), mode="w+") as f:
         yaml.dump(model_config, f, default_flow_style=False)
-    main_logger.info(f"Test configuration {config_name} saved at location '{out_dir}'!")
+    main_logger.info(f"Configuration {config_name} saved at location '{out_dir}'!")
     del current_model
 
     return out_dir, checkpoint_path
