@@ -41,7 +41,6 @@ def main():
     )
 
     args = parse_arguments()
-
     if args.output_file is not None:
         ft_config.evaluate_output_file = args.output_file
     if args.batch_size is not None:
@@ -62,7 +61,7 @@ def main():
         ft_config.root_dir = args.dataset_dir
     if args.rawboost_algo is not None:
         ft_config.rawboost_config = _RawboostConfig(algo_id=args.rawboost_algo)
-
+        
     with open(args.config, mode="r") as f:
         model_config = safe_load(f)
 
@@ -71,7 +70,13 @@ def main():
     model_config["model"]['rawboost_algo'] = ft_config.rawboost_config.algo_id
     main_logger.info(f"Running {model_name} fine-tuned with {args.ft_languages}.")
     ft_filter = ("architecture", ['griffin_lim', 'vits'], "include")
+    model_config["model"]['filter_strategy'] = {
+        "column_name": ft_filter[0],
+        "values": ft_filter[1],
+        "strategy": ft_filter[2]
+    }
 
+    
     train_dataset = MLAADDataset(
         config=ft_config,
         root_path=ft_config.root_path_to_protocol,

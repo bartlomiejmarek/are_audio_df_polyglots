@@ -129,8 +129,7 @@ def main():
         num_workers=4,
         drop_last=True,
     )
-    out_model_dir = Path(train_config.out_model_dir) / f"{model_name}_lr_{train_config.trainer_config.optimizer_parameters["lr"]}_wd{train_config.trainer_config.optimizer_parameters["weight_decay"]}"
-    
+    out_model_dir = Path(train_config.out_model_dir) / f"{model_name}_lr_{train_config.trainer_config.optimizer_parameters['lr']}_wd_{train_config.trainer_config.optimizer_parameters['weight_decay']}"
     out_model_dir.mkdir(parents=True, exist_ok=True)
 
     # create the trainer
