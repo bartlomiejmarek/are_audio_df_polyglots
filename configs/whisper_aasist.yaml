@@ -1,5 +1,5 @@
 model:
   name: "whisper_aasist"
   parameters:
-    feature_extractor_path: "src/models/assets/whisper_medium.pth"
+    feature_extractor_path: "whisper_medium.pth"
     freeze_feature_extractor: false

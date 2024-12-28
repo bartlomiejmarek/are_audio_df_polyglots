@@ -108,6 +108,7 @@ def main():
         num_workers=4
     )
     out_model_dir = Path(ft_config.out_model_dir) / (model_name + "_ft_" + "_".join(args.ft_languages))
+    main_logger.info(out_model_dir)
     # create the trainer
     config_save_path, checkpoint_path = train_nn(
         data_train=train_loader,

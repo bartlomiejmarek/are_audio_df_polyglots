@@ -2,9 +2,12 @@
 
 ## Overview
 
-This repository contains the official implementation of the paper [**"Are audio DeepFake detection models polyglots?"**](https://arxiv.org/abs/2412.17924), authored by Bartłomiej Marek, Piotr Kawa, and Piotr Syga.
+This repository contains the official implementation of the paper **"Are audio DeepFake detection models polyglots?"**, authored by Bartłomiej Marek, Piotr Kawa, and Piotr Syga. 
+
 
 In this study, we introduce a benchmark for advancing audio DF detection in multilingual settings and empirically explore three essential questions in this area.  Specifically, we aim to check the extent to which detection efficacy varies by language, whether English benchmark-trained models are sufficient for effective cross-linguistic detection, and which targeted strategies best support DF detection in specific languages, precisely intra- or cross-lingual adaptations, \textbf{even assuming access to very limited non-English resources}.
+
+The paper is available [here](https://arxiv.org/abs/2412.17924)
 
 The codebase supports training, fine-tuning, and evaluating multilingual audio DeepFake detection models:
 
