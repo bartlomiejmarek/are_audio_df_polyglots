@@ -175,3 +175,6 @@ multirun*.py
 slurm_scripts/
 models
 logs
+.env
+tmp.py
+tmp.ipynb

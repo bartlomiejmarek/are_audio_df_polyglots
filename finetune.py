@@ -70,13 +70,13 @@ def main():
     model_config["model"]['rawboost_algo'] = ft_config.rawboost_config.algo_id
     main_logger.info(f"Running {model_name} fine-tuned with {args.ft_languages}.")
     ft_filter = ("architecture", ['griffin_lim', 'vits'], "include")
+    # ft_filter = ("architecture", ['griffin_lim', 'vits'], "include")
     model_config["model"]['filter_strategy'] = {
         "column_name": ft_filter[0],
         "values": ft_filter[1],
         "strategy": ft_filter[2]
     }
-
-    
+       
     train_dataset = MLAADDataset(
         config=ft_config,
         root_path=ft_config.root_path_to_protocol,
@@ -112,7 +112,9 @@ def main():
         drop_last=True,
         num_workers=4
     )
-    out_model_dir = Path(ft_config.out_model_dir) / (model_name + "_ft_" + "_".join(args.ft_languages))
+    out_model_dir = Path(ft_config.out_model_dir) / (f'{model_name}_ft_{"_".join(args.ft_languages)}_{ft_filter[0]}_{"".join(ft_filter[1])}_{ft_filter[2]}')
+    out_model_dir.mkdir(parents=True, exist_ok=True)
+    
     main_logger.info(out_model_dir)
     # create the trainer
     config_save_path, checkpoint_path = train_nn(
