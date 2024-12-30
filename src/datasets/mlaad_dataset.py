@@ -21,10 +21,7 @@ class MLAADDataset(DFDataset):
             root_path: Union[Path, str] = None,
             subset: Literal['train', 'val', 'test'] = None,
             languages: Optional[List[str]] = None,
-            predefined_column_and_values: Optional[Tuple[str, List[str], Literal["exclude", "include"]]] = None,
-            split_languages_separately: bool = True,
-            # e.g. ("path", ["path1", "path2", ...])
-
+            filters: Optional[List] = None
     ):
         super().__init__(
             samples_df=samples_df,
@@ -36,18 +33,13 @@ class MLAADDataset(DFDataset):
         self.root_path = root_path
         self.languages = languages
 
-        self.predefined_column_and_values = predefined_column_and_values
-        self.split_languages_separately = split_languages_separately
-
+        self.filters = filters
         # get the samples from the protocol files
         self.samples_df = self.get_dataframe_from_protocol(file_prefix="meta.csv")
         # use predefined list of paths if provided
-        if self.predefined_column_and_values is not None:
-            self.samples_df = self._use_predefined_list_of_samples(
-                column_name=self.predefined_column_and_values[0],
-                list_of_values=self.predefined_column_and_values[1],
-                mode=self.predefined_column_and_values[2]
-            )
+        if self.filters is not None:
+            self.samples_df = self._apply_filters(self.filters, self.samples_df)
+        
             assert len(self.samples_df) > 0, "No samples found in the dataset. Check the values in the predefined list."
         # split subset
         else:
@@ -57,6 +49,15 @@ class MLAADDataset(DFDataset):
         self.samples_df = self._extract_bona_fide_samples( self.samples_df)
         main_logger.info(f"Dataset loaded. Number of samples: {len(self)}.")
 
+    @staticmethod
+    def _apply_filters(filters, df):
+        """
+        Applies a list of filters to a DataFrame.
+        """
+        for condition, filter_func in filters:
+            if condition():
+                df = filter_func(df)
+        return df
     
     def _read_and_concatenate_csv(
             self,
@@ -142,8 +143,7 @@ class MLAADDataset(DFDataset):
 
         return pd.concat(balanced_spoof_list)
         
-
-        
+       
     
     def get_dataframe_from_protocol(self, file_prefix: str) -> pd.DataFrame:
         """Read the protocol file for MLAAD and return a DataFrame with the samples."""
@@ -172,10 +172,8 @@ class MLAADDataset(DFDataset):
         """
         Split the dataset into train, validation, and test sets.
 
-        :param dataframe: DataFrame with samples to split
-        :param split_languages_separately:
-            If True: Each language will be split separately (e.g. 70% of English, 70% of French, etc.)
-            If False: The whole dataset will be split according to the split_ratio
+        :param dataframe: DataFrame with samples to split.
+        :return: DataFrame with samples for the current split.
         """
         main_logger.info("Splitting the dataset into train, validation, and test sets.")
         if self.languages is not None and self.subset is not None:
@@ -189,14 +187,18 @@ class MLAADDataset(DFDataset):
 if __name__ == "__main__":
     langs = ['ru', 'en', 'es', 'fr', 'de', 'it', 'pl', 'uk']
     
-    test_filter = ("architecture", ['vits', 'griffin_lim'], "include")
+    condition_uk = lambda: any(df['language'] == 'uk')
+    condition_en = lambda: any(df['language'] == 'en')
+
+    # Define filter functions
+    filter_1 = lambda df: df[df['architecture'].isin(['vits', 'griffin_lim'])]
+    filter_2 = lambda df: df[~df['architecture'].isin(['other'])]
+
     train_dataset = MLAADDataset(
             config=DF_FT_Config(rawboost_config=_RawboostConfig(algo_id=0)),
             root_path=Path("/storage1/bartekmarek/mlin/"),
             languages=langs,
             predefined_column_and_values=test_filter,  # type: ignore
-            split_languages_separately=True,
-
         )
 
     print(train_dataset.samples_df.columns)
