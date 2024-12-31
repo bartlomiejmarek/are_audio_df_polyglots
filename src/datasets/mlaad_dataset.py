@@ -1,7 +1,7 @@
 from os.path import join, normpath
 from pathlib import Path
 from re import split
-from typing import Union, Tuple, Literal, Optional, List
+from typing import Union, Tuple, Literal, Optional, List, Dict, Any
 
 import pandas as pd
 from sklearn.utils import resample
@@ -21,7 +21,11 @@ class MLAADDataset(DFDataset):
             root_path: Union[Path, str] = None,
             subset: Literal['train', 'val', 'test'] = None,
             languages: Optional[List[str]] = None,
-            filters: Optional[List] = None
+            column_filter: Optional[Tuple[str, List[str], Literal["exclude", "include"]]] = None,
+            language_filter_config: Dict[str, Dict[str, Tuple[Literal["include", "exclude"], List[Any]]]] = None,
+            split_languages_separately: bool = True,
+            # e.g. ("path", ["path1", "path2", ...])
+
     ):
         super().__init__(
             samples_df=samples_df,
@@ -33,13 +37,16 @@ class MLAADDataset(DFDataset):
         self.root_path = root_path
         self.languages = languages
 
-        self.filters = filters
+        self.single_column_filter = column_filter
+        self.language_filter_config = language_filter_config
+        self.split_languages_separately = split_languages_separately
+
         # get the samples from the protocol files
         self.samples_df = self.get_dataframe_from_protocol(file_prefix="meta.csv")
-        # use predefined list of paths if provided
-        if self.filters is not None:
-            self.samples_df = self._apply_filters(self.filters, self.samples_df)
         
+        # use predefined list of paths if provided
+        if self.single_column_filter is not None or self.language_filter_config is not None:
+            self._apply_filters('language')
             assert len(self.samples_df) > 0, "No samples found in the dataset. Check the values in the predefined list."
         # split subset
         else:
@@ -49,16 +56,73 @@ class MLAADDataset(DFDataset):
         self.samples_df = self._extract_bona_fide_samples( self.samples_df)
         main_logger.info(f"Dataset loaded. Number of samples: {len(self)}.")
 
-    @staticmethod
-    def _apply_filters(filters, df):
+    def _use_single_filter(
+        self,
+        column_name: str,
+        list_of_values: List[str],
+        mode: Literal["include", "exclude"]
+
+    ) -> pd.DataFrame:
         """
-        Applies a list of filters to a DataFrame.
+        Apply a single filter of form (column, list_of_values, mode).
         """
-        for condition, filter_func in filters:
-            if condition():
-                df = filter_func(df)
-        return df
+        if column_name not in self.samples_df.columns:
+            # Skip or raise an error
+            return self.samples_df
+
+        if mode == "include":
+            return self.samples_df[self.samples_df[column_name].isin(list_of_values)]
+        elif mode == "exclude":
+            return self.samples_df[~self.samples_df[column_name].isin(list_of_values)]
+        else:
+            raise ValueError(f"Invalid filter mode: {mode}")
     
+    @staticmethod
+    def filter_by_language_criteria(
+        df: pd.DataFrame,
+        language_column: str,
+        filter_config: Dict[str, Dict[str, Tuple[Literal["include", "exclude"], List[Any]]]]
+    ) -> pd.DataFrame:
+        """
+        Build a combined mask that checks, for each language in filter_config,
+        the columns + modes + allowed/disallowed values.
+        Rows matching any language's rules are included (logical OR across languages).
+        """
+        combined_mask = pd.Series(False, index=df.index)
+
+        for lang_key, col_rules in filter_config.items():
+            lang_mask = (df[language_column] == lang_key)
+            print(col_rules)
+            for col_name, (mode, values) in col_rules.items():
+                if col_name not in df.columns:
+                    continue
+                if mode == "include":
+                    lang_mask &= df[col_name].isin(values)
+                elif mode == "exclude":
+                    lang_mask &= ~df[col_name].isin(values)
+                else:
+                    raise ValueError(f"Unknown filter mode: {mode}")
+
+            # Combine with the overall mask using OR: if a row matches
+            # any language rule, we keep it.
+            combined_mask |= lang_mask
+
+        return df[combined_mask] 
+    
+    def _apply_filters(self, language_column_name) -> None:
+        # (1) Apply optional single-col filter first
+        if self.single_column_filter is not None:
+            col, vals, mode = self.single_column_filter
+            self.samples_df = self._use_single_filter(col, vals, mode)
+
+        # (2) Apply language-based, multi-column filter if provided
+        if self.language_filter_config is not None:
+            self.samples_df = self.filter_by_language_criteria(
+                df=self.samples_df,
+                language_column=language_column_name,
+                filter_config=self.language_filter_config
+            )
+            
     def _read_and_concatenate_csv(
             self,
             start_path: Union[str, Path],
@@ -143,8 +207,7 @@ class MLAADDataset(DFDataset):
 
         return pd.concat(balanced_spoof_list)
         
-       
-    
+         
     def get_dataframe_from_protocol(self, file_prefix: str) -> pd.DataFrame:
         """Read the protocol file for MLAAD and return a DataFrame with the samples."""
 
@@ -172,8 +235,10 @@ class MLAADDataset(DFDataset):
         """
         Split the dataset into train, validation, and test sets.
 
-        :param dataframe: DataFrame with samples to split.
-        :return: DataFrame with samples for the current split.
+        :param dataframe: DataFrame with samples to split
+        :param split_languages_separately:
+            If True: Each language will be split separately (e.g. 70% of English, 70% of French, etc.)
+            If False: The whole dataset will be split according to the split_ratio
         """
         main_logger.info("Splitting the dataset into train, validation, and test sets.")
         if self.languages is not None and self.subset is not None:
@@ -185,20 +250,25 @@ class MLAADDataset(DFDataset):
 
 
 if __name__ == "__main__":
+    from dotenv import load_dotenv
+    from os import getenv
+    load_dotenv()
     langs = ['ru', 'en', 'es', 'fr', 'de', 'it', 'pl', 'uk']
     
-    condition_uk = lambda: any(df['language'] == 'uk')
-    condition_en = lambda: any(df['language'] == 'en')
-
-    # Define filter functions
-    filter_1 = lambda df: df[df['architecture'].isin(['vits', 'griffin_lim'])]
-    filter_2 = lambda df: df[~df['architecture'].isin(['other'])]
+    language_filter = {
+        "pl": {
+            "architecture": ("include", ["vits", "griffin_lim"])
+        },
+        "uk": {
+            "architecture": ("include", ["xtts1"])
+        }
+    }
 
     train_dataset = MLAADDataset(
             config=DF_FT_Config(rawboost_config=_RawboostConfig(algo_id=0)),
-            root_path=Path("/storage1/bartekmarek/mlin/"),
+            root_path=Path(getenv("PATH_TO_MLAAD")),
             languages=langs,
-            predefined_column_and_values=test_filter,  # type: ignore
+            language_filter_config=language_filter  # type: ignore
         )
 
-    print(train_dataset.samples_df.columns)
+    print(train_dataset.architecture.unique())

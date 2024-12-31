@@ -64,14 +64,3 @@ class DFDataset(BaseDataset):
     def _get_spoof_only(self) -> pd.DataFrame:
         """Return only the spoof samples."""
         return self._get_samples_by_label(self.config.spoof_label[0])
-
-    def _use_predefined_list_of_samples(
-            self,
-            column_name: str = 'path',
-            list_of_values: List[str] = None,
-            mode: Literal["exclude", "include"] = "include"
-    ) -> pd.DataFrame:
-        """Use only the predefined list of samples."""
-        if mode == "exclude":
-            return self.samples_df.loc[~self.samples_df[column_name].isin(list_of_values)].reset_index(drop=True)
-        return self.samples_df.loc[self.samples_df[column_name].isin(list_of_values)].reset_index(drop=True)

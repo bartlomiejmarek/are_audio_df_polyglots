@@ -164,6 +164,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+.vscode
 old
 data
 model_configs
@@ -178,3 +179,4 @@ logs
 .env
 tmp.py
 tmp.ipynb
+datasets
