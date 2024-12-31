@@ -840,7 +840,11 @@ class WhisperAASIST(nn.Module):
 
 
 if __name__ == "__main__":
-    whisper_path = "src/models/assets/whisper_medium.pth"
+    from dotenv import load_dotenv
+    from pathlib import Path 
+    
+    load_dotenv()
+    whisper_path = Path('ASSET_PATH') / "whisper_medium.pth"
     model = WhisperAASIST(whisper_path=whisper_path, device="cuda")
     model = model.to("cuda")
     x = torch.rand(2, 64_600)

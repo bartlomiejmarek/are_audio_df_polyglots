@@ -40,7 +40,7 @@ def train_nn(
         current_model.load_state_dict(torch.load(checkpoint_path), strict=False)
         main_logger.info(f"Loaded weights from '{checkpoint_path}'.")
     else:
-        main_logger.info(f"Training '{model_name}' model on {len(data_train)} audio files.")
+        main_logger.info(f"Training {model_name} from scratch.")
     current_model = current_model.to(device)
 
     use_scheduler = "rawnet3" in model_name.lower()
@@ -68,7 +68,7 @@ def train_nn(
     config_name = "configuration.yaml"
     with open(join(dirname(checkpoint_path), config_name), mode="w+") as f:
         yaml.dump(model_config, f, default_flow_style=False)
-    main_logger.info(f"Test configuration {config_name} saved at location '{out_dir}'!")
+    main_logger.info(f"Configuration {config_name} saved at location '{out_dir}'!")
     del current_model
 
     return out_dir, checkpoint_path

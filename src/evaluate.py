@@ -81,7 +81,7 @@ def evaluate_nn(
     model = model.to(device)
 
     main_logger.info(
-        f"Testing '{model_name}' model, weights path: '{model_path}', on {len(test_loader)} audio files."
+        f"Testing '{model_name}' model, weights path: {model_path}"
     )
 
     y_pred = torch.Tensor([]).to(device)

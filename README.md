@@ -2,9 +2,12 @@
 
 ## Overview
 
-This repository contains the official implementation of the paper **"Are audio DeepFake detection models polyglots?"**, authored by Bartłomiej Marek, Piotr Kawa, and Piotr Syga.
+This repository contains the official implementation of the paper **"Are audio DeepFake detection models polyglots?"**, authored by Bartłomiej Marek, Piotr Kawa, and Piotr Syga. 
+
 
 In this study, we introduce a benchmark for advancing audio DF detection in multilingual settings and empirically explore three essential questions in this area.  Specifically, we aim to check the extent to which detection efficacy varies by language, whether English benchmark-trained models are sufficient for effective cross-linguistic detection, and which targeted strategies best support DF detection in specific languages, precisely intra- or cross-lingual adaptations, \textbf{even assuming access to very limited non-English resources}.
+
+The paper is available [here](https://arxiv.org/abs/2412.17924)
 
 The codebase supports training, fine-tuning, and evaluating multilingual audio DeepFake detection models:
 
@@ -23,6 +26,43 @@ Available languages include:
 ```
 
 ---
+## Datasets
+---
+For the experiments we use: ASVspoof2019LA and MLAAD. 
+
+MLAAD dataset has the following structure
+```
+MLAAD/
+README.md (36-42)
+├── bonafide
+│   ├── de_DE
+│   │   └── by_book
+│   │       ├── female
+│   │       │   └── angela_merkel
+│   │       │   │    └── merkel_alone
+│   │       |   │        └── wavs
+│   │       |   ├── eva_k
+│   │       │   │    ├── grune_haus
+│   │       |   │    |    └── wavs
+...
+|   ├── en_UK
+│   │   └── by_book
+│   │       └── female
+│   │           └── elizabeth_klett
+│   │               ├── jane_eyre
+│   │               │   └── wavs
+│   │               └── wives_and_daughters
+│   │                   └── wavs
+....
+
+├── fake
+│   ├── ar
+│   │   └── tts_models_multilingual_multi-dataset_xtts_v1.1
+│   ├── bg
+│   │   └── tts_models_bg_cv_vits
+│   ├── cs
+│   │   └── tts_models_cs_cv_vits
+```
 
 ### Repository Structure
 
@@ -105,8 +145,8 @@ python test.py \
 ## Results
 
 Results from the evaluation will be saved to the specified `output_file`. Use these outputs to analyze model performance across different languages.
-The example of processing of results is shown in `notebooks\post_processing.ipynb`
----
+The example of processing of results is shown in `notebooks\post_processing.ipynb`. 
+
 
 ## Citation
 

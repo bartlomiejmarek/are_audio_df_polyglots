@@ -20,7 +20,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def main():
+def main(ft_filter):
+    
     ft_config = DF_Train_Config(
         seed=42,
         # set up the training configuration
@@ -41,7 +42,6 @@ def main():
     )
 
     args = parse_arguments()
-
     if args.output_file is not None:
         ft_config.evaluate_output_file = args.output_file
     if args.batch_size is not None:
@@ -70,14 +70,24 @@ def main():
     model_config["model"]["fine_tune"] = args.ft_languages
     model_config["model"]['rawboost_algo'] = ft_config.rawboost_config.algo_id
     main_logger.info(f"Running {model_name} fine-tuned with {args.ft_languages}.")
-    ft_filter = ("architecture", ['griffin_lim', 'vits'], "include")
-
+    
+    model_config["model"]['filter_strategy'] = ft_filter['log']
+    
+    del ft_filter['log']
+          
+    out_model_dir = Path(ft_config.out_model_dir) / (f'{model_name}_ft_{"-".join(args.ft_languages)}_{model_config["model"]["filter_strategy"]}')
+    out_model_dir.mkdir(parents=True, exist_ok=True)
+    
+    main_logger.info(out_model_dir)
+    if os.path.exists(path=out_model_dir / "configuration.yaml"):
+        main_logger.info(f"Model already fine-tuned. Configuration saved at {out_model_dir}")
+        return str(out_model_dir / "configuration.yaml")
+      
     train_dataset = MLAADDataset(
         config=ft_config,
         root_path=ft_config.root_path_to_protocol,
         languages=args.ft_languages,
-        predefined_column_and_values=ft_filter,  # type: ignore
-        split_languages_separately=True,
+        language_filter_config=ft_filter,  # type: ignore
     )
 
     # split the dataset into train and validation
@@ -106,8 +116,7 @@ def main():
         shuffle=False,
         drop_last=True,
         num_workers=4
-    )
-    out_model_dir = Path(ft_config.out_model_dir) / (model_name + "_ft_" + "_".join(args.ft_languages))
+    )    
     # create the trainer
     config_save_path, checkpoint_path = train_nn(
         data_train=train_loader,
@@ -123,4 +132,39 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    language_filter = {
+        'log': 'include_xtts_v1.1_xtts_v2',
+        "en": {
+            "architecture": ("include", ['xtts_v1.1', 'xtts_v2'])
+        },
+        "de": {
+            "architecture": ("include", ['xtts_v1.1', 'xtts_v2'])
+        },
+        "es": {
+            "architecture": ("include", ['xtts_v1.1', 'xtts_v2'])
+        },
+        "fr": {
+            "architecture": ("include", ['xtts_v1.1', 'xtts_v2'])
+        },
+        "it": {
+            "architecture": ("include", ['xtts_v1.1', 'xtts_v2'])
+        },
+        "pl": {
+            "architecture": ("include", ['xtts_v1.1', 'xtts_v2'])
+        },
+        "ru": {
+            "architecture": ("include", ['xtts_v1.1', 'xtts_v2'])
+        },
+        "uk": {
+            "architecture": ("include", ['facebook/mms-tts-ukr', 'glow-tts'])
+        }
+    }
+    main(language_filter)
+    
+    for k in language_filter.keys():
+        if k != 'log':
+            language_filter[k] = {"architecture": ("include", ['griffin_lim', 'vits'])}
+            
+    language_filter['log'] = 'include_griffin_lim_vits'
+    main(language_filter)
+

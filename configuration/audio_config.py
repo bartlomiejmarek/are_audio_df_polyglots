@@ -37,12 +37,6 @@ class _AudioConfig(BaseModel):
                 "middle_end_duration": 0.2,
                 "middle_end_threshold": "1%"
             },
-            # Example of other effects:
-            # {
-            #     "effect": "reverb",
-            #     "reverberance": 50,
-            # }
-
         ],
         description="Sox effects parameters"
     )

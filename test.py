@@ -74,8 +74,7 @@ def main():
         config=test_config,
         root_path=test_config.root_path_to_protocol,
         languages=args.eval_languages,
-        predefined_column_and_values=test_filter,
-        split_languages_separately=True
+        language_filter_config=test_filter, 
     )
 
     test_loader = DataLoader(

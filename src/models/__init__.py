@@ -1,7 +1,7 @@
 from typing import Dict, Union
 import torch
+from dotenv import load_dotenv
 from src.models import (
-    lcnn,
     specrnet,
     whisper_specrnet,
     rawnet3,
@@ -12,7 +12,9 @@ from src.models import (
     whisper_aasist, w2v_assist,
     frontend_aasist
 )
+import os
 
+load_dotenv()
 
 def get_model(
     model_name: str,
@@ -35,7 +37,7 @@ def get_model(
 
     elif model_name == "whisper_aasist":
         return whisper_aasist.WhisperAASIST(
-            whisper_path=config['feature_extractor_path'],
+            whisper_path=os.path.join(os.getenv('ASSET_PATH'), config['feature_extractor_path']),
             device=device,
         )
     elif model_name == "frontend_aasist":
