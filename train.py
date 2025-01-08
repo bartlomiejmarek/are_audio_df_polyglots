@@ -16,10 +16,12 @@ from parser import parse_arguments
 from src.datasets.asvspoof2019_dataset import ASVspoof2019Dataset
 from src.train_models import train_nn
 import os
+from transformers.file_utils import TRANSFORMERS_CACHE
 from dotenv import load_dotenv
 load_dotenv()
 
 def main():
+    main_logger.info(f'Default cache directory: {TRANSFORMERS_CACHE}')
     # set up the configuration
     train_config = DF_Train_Config(
         seed=42,

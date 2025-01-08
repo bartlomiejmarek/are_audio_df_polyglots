@@ -67,7 +67,10 @@ def evaluate_nn(
         device: Union[torch.device, str]
 ):
     model_name, model_parameters = model_config["name"], model_config["parameters"]
-
+    
+    main_logger.info(
+        f"Testing '{model_name}' model, weights path: {model_path}"
+    )
     # Load model architecture
     model = get_model(
         model_name=model_name,
@@ -77,11 +80,14 @@ def evaluate_nn(
 
     # If provided weights, apply corresponding ones (from an appropriate fold)
     if model_path is not None and exists(model_path):
+        
         model.load_state_dict(torch.load(Path(model_path)), strict=False)
+    else: 
+        raise Exception("Weights not provided or not exist.")
     model = model.to(device)
 
     main_logger.info(
-        f"Testing '{model_name}' model, weights path: {model_path}"
+        f"Weights has been loaded: {model_path}"
     )
 
     y_pred = torch.Tensor([]).to(device)

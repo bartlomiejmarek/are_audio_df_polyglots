@@ -7,6 +7,7 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 from yaml import safe_load
 
+from transformers.file_utils import TRANSFORMERS_CACHE
 from configuration.df_ft_config import DF_FT_Config
 from configuration.rawboost_config import _RawboostConfig
 from configuration.train_config import _TrainerConfig
@@ -20,7 +21,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def main():
-
     test_config = DF_FT_Config(
         seed=42,
         # set up the training configuration
@@ -60,15 +60,23 @@ def main():
         test_config.root_dir = args.dataset_dir
     if args.rawboost_algo is not None:
         test_config.rawboost_config = _RawboostConfig(algo_id=args.rawboost_algo)
-
-    if "uk" in args.eval_languages:
-        test_filter = ("architecture", ['griffin_lim', 'vits'], "exclude")
-    else:
-        test_filter = ("architecture", ['xtts_v1.1', 'xtts_v2'], "include")
-
+        
+    main_logger.info(f'Default cache directory: {TRANSFORMERS_CACHE}')
     with open(args.config, mode="r") as f:
         model_config = safe_load(f)
-
+    languages = {"pl", "de", "ru", "uk", "fr", "es", "it", "en"}
+    
+    # set filter for architectures to avoid train & eval using the same set of architetures
+    if 'vits' not in args.config:
+        test_filter = {k: {"architecture": ("include", ['griffin_lim', 'vits'])} for k in languages}
+    else: 
+        test_filter = {
+            k: {"architecture": ("include", ['facebook/mms-tts-ukr', 'glow-tts'])} if k == 'uk' 
+            else {"architecture": ("include", ['xtts_v1.1', 'xtts_v2'])}
+            for k in languages
+        }
+        
+    
     # define the dataset
     test_dataset = MLAADDataset(
         config=test_config,
@@ -105,9 +113,12 @@ def main():
         'fine-tuned languages': model_config["model"].get("fine_tune", []),
         'evaluated languages': args.eval_languages,
         'rawboost_algo': model_config["model"].get("rawboost_algo", 0)
+        
     }
     append_to_csv(test_config.evaluate_output_file, list(eval_results.keys()), list(eval_results.values()))
 
 
 if __name__ == "__main__":
     main()
+
+

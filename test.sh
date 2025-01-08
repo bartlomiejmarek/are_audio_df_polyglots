@@ -3,7 +3,7 @@
 # Define the lists of languages and models
 eval_languages=("pl" "de" "ru" "uk" "fr" "es" "it" "en" )
 
-config_dir="/net/people/plgrid/plgbartlomiejmarek/are_audio_df_polyglots/models/baselines/" # path to folders with models to evaluate
+config_dir="models/baselines/" # path to folders with models to evaluate
 
 output_file="${config_dir}/evaluation_results.csv"
 

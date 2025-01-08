@@ -15,13 +15,12 @@ from parser import parse_arguments
 from src.datasets.mlaad_dataset import MLAADDataset
 from src.train_models import train_nn
 import os 
+from transformers.file_utils import TRANSFORMERS_CACHE
 from dotenv import load_dotenv
-
 load_dotenv()
 
-
 def main(ft_filter):
-    
+    main_logger.info(f'Default cache directory: {TRANSFORMERS_CACHE}')
     ft_config = DF_Train_Config(
         seed=42,
         # set up the training configuration
@@ -65,12 +64,14 @@ def main(ft_filter):
 
     with open(args.config, mode="r") as f:
         model_config = safe_load(f)
+    
+    main_logger.info(f'Config {args.config} loaded.')        
 
     model_name = model_config.get("model", {}).get("name")
     model_config["model"]["fine_tune"] = args.ft_languages
     model_config["model"]['rawboost_algo'] = ft_config.rawboost_config.algo_id
     main_logger.info(f"Running {model_name} fine-tuned with {args.ft_languages}.")
-    
+
     model_config["model"]['filter_strategy'] = ft_filter['log']
     
     del ft_filter['log']

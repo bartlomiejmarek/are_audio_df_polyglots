@@ -2,11 +2,15 @@ torch===2.2.0
 torchaudio===2.2.0
 librosa
 asteroid_filterbanks
-loralib==0.1.2
 pandas==2.2.2
 pyyaml
 alive_progress
 numpy==1.25.0
 pydantic==2.8.2
-transformers
+transformers==4.47.1
 python-dotenv
+seaborn
+matplotlib
+#  pip install git+https://github.com/openai/whisper.git
+# used version `20240930`
+whisper 

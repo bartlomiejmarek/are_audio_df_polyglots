@@ -179,7 +179,7 @@ def prepare_df(dataframe: pd.DataFrame):
     dataframe['y'] = dataframe['y'].apply(lambda x: literal_eval(x))
     dataframe['y_pred'] = dataframe['y_pred'].apply(lambda x: literal_eval(x))
     dataframe['y_pred_label'] = dataframe['y_pred_label'].apply(lambda x: literal_eval(x))
-    dataframe['evaluated languages'] = dataframe['evaluated languages'].apply(literal_eval).apply(lambda x: "+".join(x))    
+    dataframe['evaluated languages'] = dataframe['evaluated languages'].apply(literal_eval).apply(lambda x: "+".join(x))
     dataframe['model'] = dataframe['model'].apply(lambda x: rename(x))
     return dataframe
 
