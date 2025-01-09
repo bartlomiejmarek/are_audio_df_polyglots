@@ -181,6 +181,7 @@ def prepare_df(dataframe: pd.DataFrame):
     dataframe['y_pred_label'] = dataframe['y_pred_label'].apply(lambda x: literal_eval(x))
     dataframe['evaluated languages'] = dataframe['evaluated languages'].apply(literal_eval).apply(lambda x: "+".join(x))
     dataframe['model'] = dataframe['model'].apply(lambda x: rename(x))
+    dataframe['architecture'] = dataframe['model_path'].apply(lambda x: 'VITS, GriffinLIM' if 'vits' in x else 'XTTS')
     return dataframe
 
 

@@ -117,7 +117,9 @@ def main():
     }
     append_to_csv(test_config.evaluate_output_file, list(eval_results.keys()), list(eval_results.values()))
 
-
+    main_logger.info('Results added to file.')
+    main_logger.info(10*'---' + "Test finished" + 10*'---')
+    
 if __name__ == "__main__":
     main()
 
